@@ -1,7 +1,7 @@
 param([ValidateSet('main','lite')][string]$Mode='main')
 $ErrorActionPreference='Stop'
 $projectRoot=Split-Path -Parent $PSScriptRoot
-$expectedVersion='0.9.18'
+$expectedVersion='0.9.19'
 try {
   $nodePath=(Get-Command node.exe -ErrorAction Stop).Source
   $edgeCandidates=@("${env:ProgramFiles(x86)}\Microsoft\Edge\Application\msedge.exe", "$env:ProgramFiles\Microsoft\Edge\Application\msedge.exe")

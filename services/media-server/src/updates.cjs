@@ -56,5 +56,25 @@ class UpdateManager {
       this.state.latest = latest; this.save(); return this.status();
     } catch (error) { this.state.error = error.message; this.save(); return this.status(); }
   }
+  async prepareInstall() {
+    const status = this.status();
+    if (!status.updateAvailable || !this.state.latest?.package) throw new Error('There is no verified update ready to install.');
+    const packageInfo = this.state.latest.package;
+    const staging = path.join(path.dirname(this.file), 'update-staging');
+    fs.mkdirSync(staging, { recursive: true });
+    const destination = path.join(staging, packageInfo.name);
+    const response = await this.fetch(packageInfo.url, { headers: { 'User-Agent': 'WOLFE-Media-Center' }, signal: AbortSignal.timeout(120000) });
+    if (!response.ok) throw new Error('The update package could not be downloaded.');
+    const contentLength = Number(response.headers.get('content-length') || 0);
+    if (packageInfo.size && contentLength && contentLength !== packageInfo.size) throw new Error('The update package size did not match the verified release.');
+    const buffer = Buffer.from(await response.arrayBuffer());
+    if (packageInfo.size && buffer.length !== packageInfo.size) throw new Error('The update package was incomplete.');
+    if (buffer.subarray(0, 2).toString() !== 'PK') throw new Error('The update package is not a valid ZIP archive.');
+    const crypto = require('node:crypto');
+    const actualHash = crypto.createHash('sha256').update(buffer).digest('hex');
+    if (actualHash !== packageInfo.sha256) throw new Error('The update package failed its security check.');
+    fs.writeFileSync(destination, buffer);
+    return { packagePath: destination, expectedSha256: actualHash, version: this.state.latest.version };
+  }
 }
 module.exports = { UpdateManager, compareVersions, parseVersion, safeManifest };

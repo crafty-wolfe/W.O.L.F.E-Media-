@@ -1,6 +1,7 @@
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
+const { spawn } = require('node:child_process');
 const { Store } = require('./store.cjs');
 const { IptvService } = require('./iptv.cjs');
 const { UpdateManager } = require('./updates.cjs');
@@ -54,6 +55,19 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === '/api/updates/check' && req.method === 'POST') {
     if (req.headers.origin !== origin || req.headers['content-type'] !== 'application/json') return send(403, { error: 'Local app requests only' });
     try { return send(200, await updates.check()); } catch (error) { return send(400, { error: error.message }); }
+  }
+  if (url.pathname === '/api/updates/install' && req.method === 'POST') {
+    if (req.headers.origin !== origin || req.headers['content-type'] !== 'application/json') return send(403, { error: 'Local app requests only' });
+    try {
+      const prepared = await updates.prepareInstall();
+      const installer = path.join(projectRoot, 'scripts', 'Install-Update.ps1');
+      if (!fs.existsSync(installer)) throw new Error('The local update installer is unavailable.');
+      const child = spawn('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', installer, '-PackagePath', prepared.packagePath, '-ExpectedSha256', prepared.expectedSha256, '-InstallRoot', projectRoot, '-RestartMode', 'main', '-WaitForPid', String(process.pid)], { detached: true, stdio: 'ignore', windowsHide: true });
+      child.unref();
+      send(202, { installing: true, version: prepared.version });
+      setTimeout(() => server.close(() => process.exit(0)), 500);
+      return;
+    } catch (error) { return send(400, { error: error.message }); }
   }
   if (url.pathname === '/api/state' && req.method === 'GET') return send(200, store.snapshot());
   if (url.pathname === '/api/iptv/status' && req.method === 'GET') return send(200, iptv.status());
