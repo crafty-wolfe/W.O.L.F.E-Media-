@@ -3,13 +3,16 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { Store } = require('./store.cjs');
 const { IptvService } = require('./iptv.cjs');
+const { UpdateManager } = require('./updates.cjs');
 const projectRoot = path.resolve(__dirname, '..', '..', '..');
+const packageInfo = JSON.parse(fs.readFileSync(path.join(projectRoot, 'package.json'), 'utf8'));
 const root = path.join(projectRoot, 'apps', 'media-client');
 const packagesRoot = path.join(projectRoot, 'packages');
 const port = Number(process.env.WOLFE_PORT || 47831);
 const origin = `http://127.0.0.1:${port}`;
 const store = new Store(process.env.WOLFE_DATA || path.join(process.env.LOCALAPPDATA || path.join(__dirname,'..'), 'WOLFE Media Center', 'state.json'));
 const iptv = new IptvService(path.join(path.dirname(store.file), 'iptv.json'));
+const updates = new UpdateManager({ file: path.join(path.dirname(store.file), 'updates.json'), currentVersion: packageInfo.version });
 const files = {
   '/packages/ui/browser/library-loading.js': [path.join(packagesRoot,'ui','browser','library-loading.js'),'text/javascript'],
   '/packages/ui/browser/library-loading.css': [path.join(packagesRoot,'ui','browser','library-loading.css'),'text/css'],
@@ -26,6 +29,7 @@ const files = {
   '/packages/media-catalogue/browser/catalogue-filters.js': [path.join(packagesRoot,'media-catalogue','browser','catalogue-filters.js'),'text/javascript'],
   '/personalisation.js': ['personalisation.js','text/javascript'],
   '/packages/iptv/browser/player.js': [path.join(packagesRoot,'iptv','browser','player.js'),'text/javascript'],
+  '/packages/updates/browser/updates.js': [path.join(packagesRoot,'updates','browser','updates.js'),'text/javascript'],
   '/vendor/hls.min.js': ['vendor/hls.min.js','text/javascript'],
   '/assets/hero-home-v3.png': ['assets/hero-home-v3.png','image/png'],
   '/assets/hero-ondemand-v3.png': ['assets/hero-ondemand-v3.png','image/png'],
@@ -45,7 +49,12 @@ const server = http.createServer(async (req, res) => {
   if (req.headers.host !== `127.0.0.1:${port}`) return send(403, { error: 'Invalid host' });
   if (req.headers.origin && req.headers.origin !== origin) return send(403, { error: 'Invalid origin' });
   const url = new URL(req.url, origin);
-  if (url.pathname === '/api/health' && req.method === 'GET') return send(200, { app: 'wolfe-media-center', version: '0.9.17', root: projectRoot });
+  if (url.pathname === '/api/health' && req.method === 'GET') return send(200, { app: 'wolfe-media-center', version: packageInfo.version, root: projectRoot });
+  if (url.pathname === '/api/updates/status' && req.method === 'GET') return send(200, updates.status());
+  if (url.pathname === '/api/updates/check' && req.method === 'POST') {
+    if (req.headers.origin !== origin || req.headers['content-type'] !== 'application/json') return send(403, { error: 'Local app requests only' });
+    try { return send(200, await updates.check()); } catch (error) { return send(400, { error: error.message }); }
+  }
   if (url.pathname === '/api/state' && req.method === 'GET') return send(200, store.snapshot());
   if (url.pathname === '/api/iptv/status' && req.method === 'GET') return send(200, iptv.status());
   if (url.pathname === '/api/iptv/catalog' && req.method === 'GET') {
@@ -98,5 +107,5 @@ const server = http.createServer(async (req, res) => {
   res.writeHead(200, { 'Content-Type': type + '; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self'; media-src 'self' http: https:; img-src 'self' data: http: https:; object-src 'none'; frame-src 'none'; base-uri 'none'; frame-ancestors 'none'" });
   fs.createReadStream(path.isAbsolute(file) ? file : path.join(root, file)).pipe(res);
 });
-server.listen(port, '127.0.0.1', () => console.log(`W.O.L.F.E ready at ${origin}`));
+server.listen(port, '127.0.0.1', () => { console.log(`W.O.L.F.E ready at ${origin}`); updates.check().catch(() => {}); });
 server.on('error', error => { console.error(error.message); process.exitCode = 1; });
