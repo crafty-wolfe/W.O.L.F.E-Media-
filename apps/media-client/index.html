@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>W.O.L.F.E Media</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="design-v3.css">
+  <link rel="stylesheet" href="visual-rebuild.css">
+  <link rel="stylesheet" href="/packages/iptv/browser/player.css">
+  <link rel="stylesheet" href="/packages/ui/browser/library-loading.css">
+</head>
+<body>
+  <div id="shell" class="shell">
+    <header class="top">
+      <div class="brand"><div class="mark">W</div><div><div class="bt">W.O.L.F.E</div><div id="modeText" class="bs">MEDIA</div></div></div>
+      <nav id="nav"></nav>
+      <div class="status"><div id="profileChip" class="chip focusable" tabindex="0"><div id="profileInitial" class="avatar">M</div><span id="profileName">Mike</span></div><div class="dot"></div><span id="clock"></span></div>
+    </header>
+    <main id="content" class="content"></main>
+    <div class="footer"><span><b>← ↑ ↓ →</b> Navigate</span><span><b>Enter</b> Select</span><span><b>Esc</b> Back</span><span><b>C</b> Camera alert</span><span><b>I</b> IPTV demo</span></div>
+  </div>
+  <div id="profileOverlay" class="overlay hidden"><div class="profiles"><div class="eyebrow">W.O.L.F.E MEDIA</div><h1>Who's watching?</h1><p class="lead">Choose a profile. W.O.L.F.E remembers each person's progress separately.</p><div id="profileGrid" class="profileGrid"></div></div></div>
+  <div id="camera" class="camera hidden"><div class="camView"><div class="live">● LIVE</div><div class="person"></div></div><div class="camCopy"><div class="eyebrow">PERSON DETECTED</div><h3>Driveway camera</h3><p>Motion detected just now.</p><div class="actions"><button id="viewCam" class="primary focusable">View</button><button id="dismissCam" class="secondary focusable">Dismiss</button></div></div></div>
+  <div id="modal" class="modal hidden"><div class="modalCard"><div id="modalEyebrow" class="eyebrow">W.O.L.F.E</div><h2 id="modalTitle">Title</h2><div id="modalBody"></div><div id="modalActions" class="actions"></div></div></div>
+  <script src="app.js"></script>
+  <script src="vendor/hls.min.js"></script>
+  <script src="enhancements.js"></script>
+  <script src="design-v3.js"></script>
+  <script src="/packages/media-catalogue/browser/catalogue-filters.js"></script>
+  <script src="/packages/media-catalogue/browser/collection-categories.js"></script>
+  <script src="personalisation.js"></script>
+  <script src="/packages/iptv/browser/player.js"></script>
+  <script src="/packages/ui/browser/library-loading.js"></script>
+</body>
+</html>

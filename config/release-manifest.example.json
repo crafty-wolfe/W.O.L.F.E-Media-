@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "channel": "stable",
+  "version": "1.0.0",
+  "publishedAt": "2026-09-22T00:00:00Z",
+  "notes": "Release notes appear in W.O.L.F.E Settings.",
+  "package": {
+    "name": "wolfe-media-1.0.0-windows.zip",
+    "sha256": "replace-with-a-64-character-sha256-hash",
+    "size": 0
+  },
+  "signature": {
+    "algorithm": "reserved",
+    "value": ""
+  }
+}

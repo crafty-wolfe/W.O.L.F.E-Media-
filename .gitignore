@@ -1,0 +1,12 @@
+node_modules/
+*.log
+data/
+releases/
+staging/
+backups/
+*.zip
+WOLFE-Media-Center-v*/
+WOLFE Media Center/
+.env
+.env.*
+!example.env
