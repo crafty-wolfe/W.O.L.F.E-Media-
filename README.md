@@ -1,4 +1,4 @@
-# W.O.L.F.E Media Center v0.9.12
+# W.O.L.F.E Media Center v0.9.18
 
 Local Windows media shell rebuilt from the original W.O.L.F.E concept artwork. Main and Lite use a near-black cinematic atmosphere, electric-blue remote focus glow, edge-led featured banners and wide image rails. The visual rebuild covers Who's Watching, Home, On Demand, Movies, Series, Apps, Cameras and Media Lite while preserving the existing local prototype behaviour. IPTV playback opens in a dedicated full-screen TV player with a minimal fade-away control layer instead of a browser-style dialog.
 
