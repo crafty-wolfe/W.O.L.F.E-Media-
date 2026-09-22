@@ -28,7 +28,7 @@ function safeManifest(input, release, assets) {
 }
 
 class UpdateManager {
-  constructor({ file, currentVersion, repository = 'crafty-wolfe/W.O.L.F.E-Media-', fetchImpl = fetch }) {
+  constructor({ file, currentVersion, repository = 'crafty-wolfe/WOLFE-Media-Releases', fetchImpl = fetch }) {
     this.file = file; this.currentVersion = currentVersion; this.repository = repository; this.fetch = fetchImpl;
     this.state = { channel: 'stable', lastCheckedAt: null, latest: null, error: null };
     try { this.state = { ...this.state, ...JSON.parse(fs.readFileSync(file, 'utf8')) }; } catch {}
